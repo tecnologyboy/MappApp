@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mapsapp/screens/screens.dart';
 
-import '../blocs/boc.dart';
+import '../blocs/bloc.dart';
 
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({super.key});
