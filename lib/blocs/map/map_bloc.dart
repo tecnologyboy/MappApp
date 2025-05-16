@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:mapsapp/blocs/bloc.dart';
@@ -12,6 +15,8 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
   GoogleMapController? _mapController;
 
+  StreamSubscription<LocationState>? userLocationSuscriptions;
+
   MapBloc({required this.locationBloc}) : super(const MapState()) {
     on<OnMapInitializeEvent>(_onInitMap);
 
@@ -22,7 +27,21 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       (event, emit) => emit(state.copyWidth(isFollowinUser: false)),
     );
 
+    on<UpdateUserPolylinesEvent>(_onPolylinePoint);
+
+    on<OnToggleUserRoute>(
+      (event, emit) => emit(state.copyWidth(showMyRoute: !state.showMyRoute)),
+    );
+
     locationBloc.stream.listen((locationState) {
+      if (locationState.lastknownLocation != null) {
+        add(
+          UpdateUserPolylinesEvent(
+            userLocations: locationState.myLocationHistory,
+          ),
+        );
+      }
+
       if (!state.isFollowinUser) return;
       if (locationState.lastknownLocation == null) return;
 
@@ -50,9 +69,32 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(state.copyWidth(isMapInitialized: true));
   }
 
+  void _onPolylinePoint(UpdateUserPolylinesEvent event, Emitter<MapState> map) {
+    final myRoute = Polyline(
+      polylineId: const PolylineId('myRoute'),
+      color: Colors.black,
+      width: 5,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      points: event.userLocations,
+    );
+
+    final currentPolyline = Map<String, Polyline>.from(state.polylines);
+
+    currentPolyline['myRoute'] = myRoute;
+
+    emit(state.copyWidth(polylines: currentPolyline));
+  }
+
   void moveCamera(LatLng newLocation) {
     final camaraUpdate = CameraUpdate.newLatLng(newLocation);
 
     _mapController?.animateCamera(camaraUpdate);
+  }
+
+  @override
+  Future<void> close() {
+    userLocationSuscriptions?.cancel();
+    return super.close();
   }
 }

@@ -7,8 +7,13 @@ import 'package:mapsapp/themes/themes.dart';
 
 class MapView extends StatelessWidget {
   final LatLng lastknownLocation;
+  final Set<Polyline> polylines;
 
-  const MapView({super.key, required this.lastknownLocation});
+  const MapView({
+    super.key, 
+    required this.lastknownLocation, 
+    required this.polylines
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +42,7 @@ class MapView extends StatelessWidget {
           zoomControlsEnabled: false,
           myLocationEnabled: true,
           buildingsEnabled: true,
+          polylines: polylines,
 
           style: uberMapTheme.toString(),
           onMapCreated:
