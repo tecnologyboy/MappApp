@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+
 import 'package:mapsapp/blocs/bloc.dart';
 
 import 'package:mapsapp/views/views.dart';
-import 'package:mapsapp/widgets/btn_follow_user.dart';
-import 'package:mapsapp/widgets/btn_show_user_route.dart';
-import 'package:mapsapp/widgets/btncurrentlocation.dart';
+import 'package:mapsapp/widgets/widgets.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -43,15 +43,18 @@ class _MapScreenState extends State<MapScreen> {
           if (locationState.lastknownLocation == null) {
             return Center(child: Text('Aun no hay ubicación, espere...'));
           }
-
+    
           return BlocBuilder<MapBloc, MapState>(
             builder: (context, mapState) {
+              /*Este bloque relacionado con el polyline, para colocar un polyline vacio
+              en casod e ue se requiera simular que se elimina la linea o bien volver a cargar los 
+              datos del state, en caso de que se quiera mostar la linea del polyline */
               Map<String, Polyline> polyLines = Map.from(mapState.polylines);
-
+    
               if (!mapState.showMyRoute) {
                 polyLines.removeWhere((key, value) => key == 'myRoute');
               }
-
+    
               return SingleChildScrollView(
                 child: Stack(
                   children: [
@@ -59,9 +62,11 @@ class _MapScreenState extends State<MapScreen> {
                       lastknownLocation: locationState.lastknownLocation!,
                       polylines: polyLines.values.toSet(),
                     ),
+                    //TODO Botones y otras cosas
+                    MapSearchBar(),
+                    ManualMarker(),
+                    
                   ],
-
-                  //TODO Botones y otras cosas
                 ),
               );
             },

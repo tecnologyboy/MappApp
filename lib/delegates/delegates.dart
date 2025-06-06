@@ -1,0 +1,1 @@
+export 'package:mapsapp/delegates/map_seach_delegate.dart';
